@@ -1,16 +1,34 @@
+import { useContext, useEffect } from "react";
 import "./App.css";
 import Routing from "./Routing.jsx";
-// import Header from "./Components/Header/Header.jsx";
-// import CarouselEffect from "./Components/Carousel/Carousel.jsx";
-// import Catagory from "./Components/Catagory/Catagory.jsx";
-// import Product from "./Components/Product/Product.jsx";
+import { DataContext } from "./Components/DataProvider/DataProvider.jsx";
+import { auth } from "./Utility/Firebase.js";
+import { Type } from "./Utility/action.type.js";
+
 function App() {
+  const [{ user }, dispatch] = useContext(DataContext);
+  useEffect(() => {
+    auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        dispatch({
+          type: Type.SET_USER,
+          user: authUser,
+        });
+      } else {
+        dispatch({
+          type: Type.SET_USER,
+          user: null,
+        });
+      }
+    });
+  }, []);
   return (
     <div className="App">
       {/* <Header />
       <CarouselEffect />
       <Catagory />
       <Product /> */}
+
       <Routing />
     </div>
   );
