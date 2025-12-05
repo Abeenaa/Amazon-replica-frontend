@@ -42,3 +42,57 @@
 .payment_details button:hover {
   background-color: var(--primary-shade);
 }
+
+@media (max-width: 768px) {
+  .flex {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .flex h3 {
+    min-width: auto;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  .payment_card_container {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .payment_header {
+    font-size: 20px;
+    padding: 15px;
+  }
+
+  .payment {
+    padding: 15px;
+  }
+
+  .payment_price {
+    padding: 15px 0;
+  }
+
+  .payment_details button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+  .payment_header {
+    font-size: 18px;
+  }
+
+  .payment_details {
+    font-size: 15px;
+  }
+
+  .payment_price div {
+    font-size: 15px;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
