@@ -13,3 +13,14 @@
     rgba(255, 255, 255)
   );
 }
+@media (max-width: 768px) {
+  .hero__image::before {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__image::before {
+    height: 150px;
+  }
+}
