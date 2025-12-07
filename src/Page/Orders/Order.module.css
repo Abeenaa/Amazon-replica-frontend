@@ -1,0 +1,26 @@
+.container {
+  padding: 30px;
+  background-color: gainsboro;
+}
+.order_container {
+  background-color: #fff;
+  padding: 20px;
+}
+.order_container h2 {
+  border-bottom: 2px solid var(--primary-shade);
+  padding: 20px;
+}
+.order_item {
+  margin: 20px 0;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.products_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}

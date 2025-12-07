@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import classes from "./Auth.module.css";
 import { Link } from "react-router-dom";
 import { auth } from "../../Utility/Firebase";
+
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -9,12 +10,16 @@ import {
 import { useContext } from "react";
 import { DataContext } from "../../Components/DataProvider/DataProvider";
 import { ClipLoader } from "react-spinners";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 function Auth() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navState = useLocation().state;
+  const location = useLocation();
+  const from = location.state?.redirectTo || "/";
+  // console.log(navState);
   const [loading, setLoading] = useState({
     signIn: false,
     signUp: false,
@@ -38,7 +43,7 @@ function Auth() {
           type: "SET_USER",
           user: userCredential.user,
         });
-        navigate("/");
+        navigate(from, { replace: true });
         setLoading({ ...loading, signIn: false });
       } catch (err) {
         setLoading({ ...loading, signIn: false });
@@ -57,7 +62,7 @@ function Auth() {
           type: "SET_USER",
           user: userCredential.user,
         });
-        navigate("/");
+        navigate(from, { replace: true });
         setLoading({ ...loading, signUp: false });
       } catch (err) {
         setLoading({ ...loading, signUp: false });
@@ -77,6 +82,9 @@ function Auth() {
 
       <div className={classes.login_container}>
         <h1>Sign In</h1>
+        {location.state?.msg && (
+          <div className={classes.auth_message}>{location.state.msg}</div>
+        )}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <form>

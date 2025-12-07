@@ -6,9 +6,14 @@ import { DataContext } from "../../Components/DataProvider/DataProvider";
 import ProductCard from "../../Components/Product/ProductCard";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import Currencyformat from "../../Components/Currencyfomat/Currencyformat";
+import { axiosInstance } from "../../Api/Axios";
+import { ClipLoader } from "react-spinners";
+import { db } from "../../Utility/Firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 function Payment() {
-  const [{ basket, user }] = useContext(DataContext);
-  console.log(user);
+  const [{ basket, user }, dispatch] = useContext(DataContext);
+  // console.log(user);
   const totalitem = basket?.reduce((amount, item) => {
     return item.amount + amount;
   }, 0);
@@ -19,10 +24,54 @@ function Payment() {
 
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
   const [Carderror, setCardError] = useState();
+  const [processing, setProcessing] = useState(false);
   const handleChange = (e) => {
     console.log(e);
     e?.error?.message ? setCardError(e.error.message) : setCardError(null);
+  };
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    try {
+      setProcessing(true);
+      // backend api call
+      //1. backend | functions -->contact to the client secret
+
+      const response = await axiosInstance({
+        method: "POST",
+        url: `/payment/create?total=${total * 100}`,
+      });
+
+      const clientSecret = response.data?.clientSecret;
+      // console.log("response", response.data);
+      // 2.client-side(react-side confirmation)
+      const confirmation = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+      console.log("confirmation", confirmation);
+      // 3 if payment is successfull store the order in db and clear the basket
+      await setDoc(
+        doc(db, "users", user?.uid, "orders", confirmation.paymentIntent.id),
+        {
+          basket: basket,
+          amount: confirmation.paymentIntent.amount,
+          created: confirmation.paymentIntent.created,
+        }
+      );
+
+      //empty the basket
+      dispatch({ type: "EMPTY_BASKET" });
+
+      setProcessing(false);
+      navigate("/Orders", { state: { msg: "order placed succssfully" } });
+    } catch (err) {
+      console.log("error", err);
+      setProcessing(false);
+    }
   };
   return (
     <LayOut>
@@ -55,7 +104,7 @@ function Payment() {
           <h3>Payment Method</h3>
           <div className={classes.payment_card_container}>
             <div className={classes.payment_details}>
-              <form action="">
+              <form onSubmit={handlePayment} action="">
                 {Carderror && (
                   <small style={{ color: "red" }}>{Carderror}</small>
                 )}
@@ -67,7 +116,16 @@ function Payment() {
                       Total Order | <Currencyformat amount={total} />
                     </span>
                   </div>
-                  <button>Pay Now</button>
+                  <button type="submit">
+                    {processing ? (
+                      <div className={classes.loading}>
+                        <ClipLoader color="gray" size={12} />
+                        <p>Please wait....</p>
+                      </div>
+                    ) : (
+                      " Pay Now"
+                    )}
+                  </button>
                 </div>
               </form>
             </div>
